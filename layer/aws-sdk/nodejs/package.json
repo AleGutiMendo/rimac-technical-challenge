@@ -1,0 +1,13 @@
+{
+  "name": "aws-sdk-layer",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.868.0",
+    "@aws-sdk/client-eventbridge": "^3.864.0",
+    "@aws-sdk/client-sns": "^3.864.0",
+    "@aws-sdk/client-sqs": "^3.864.0",
+    "@aws-sdk/lib-dynamodb": "^3.868.0",
+    "joi": "^18.0.1"
+  }
+}

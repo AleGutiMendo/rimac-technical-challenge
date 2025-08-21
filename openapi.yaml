@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  title: Rimac Technical Challenge API
+  version: 1.0.0
+  description: API de agendamiento y consulta de appointments
+servers:
+  - url: https://{restapi_id}.execute-api.{region}.amazonaws.com/{stage}
+    variables:
+      restapi_id:
+        default: '<api-id>'
+      region:
+        default: 'us-east-1'
+      stage:
+        default: 'dev'
+paths:
+  /api/appointments:
+    post:
+      summary: Crear un appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppointmentRequestDto'
+      responses:
+        '200':
+          description: Appointment creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAppointmentResponseDto'
+  /api/appointments/{insuredId}:
+    get:
+      summary: Listar appointments por insuredId
+      parameters:
+        - in: path
+          name: insuredId
+          required: true
+          schema:
+            type: string
+            pattern: "^\\d{5}$"
+      responses:
+        '200':
+          description: Lista de appointments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAppointmentsResponseDto'
+components:
+  schemas:
+    CreateAppointmentRequestDto:
+      type: object
+      required:
+        - insuredId
+        - scheduleId
+        - countryISO
+      properties:
+        insuredId:
+          type: string
+          pattern: "^\\d{5}$"
+        scheduleId:
+          type: integer
+        countryISO:
+          type: string
+          enum: [PE, CL]
+    CreateAppointmentResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+        appointmentId:
+          type: string
+        status:
+          type: string
+          enum: [pending, completed, failed]
+    AppointmentResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        insuredId:
+          type: string
+        scheduleId:
+          type: integer
+        countryISO:
+          type: string
+          enum: [PE, CL]
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        processedAt:
+          type: string
+          format: date-time
+        errorMessage:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ListAppointmentsResponseDto:
+      type: object
+      properties:
+        appointments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppointmentResponseDto'
+        total:
+          type: integer
