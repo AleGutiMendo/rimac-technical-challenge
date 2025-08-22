@@ -1,19 +1,20 @@
 # Rimac Technical Challenge
 
-Serverless microservices architecture with Clean Architecture principles using AWS Lambda, Serverless Framework v4 and optimized TypeScript bundles.
+Serverless microservices architecture with Clean Architecture principles using AWS Lambda, Serverless Framework v3 and optimized TypeScript bundles.
 
 ## Architecture
 
 This project follows a **serverless microservices architecture** where **each use case is an independent AWS Lambda function**. The project has been optimized for minimal bundle sizes using:
 
-- **Individual packaging**: Each function is packaged separately (~25KB each)
+- **Individual packaging**: Each function is packaged separately (~10-17KB each)
 - **Lambda Layers**: Shared dependencies in optimized layers
-- **ESBuild**: Native bundling for fast, efficient builds
+- **ESBuild**: Plugin-based bundling for fast, efficient builds
 - **TypeScript**: Full type safety with proper Serverless Framework integration
+- **TypeScript-Only Configuration**: All configuration files must be in TypeScript (.ts) format
 
 ### Benefits:
 
-- **Ultra-light functions**: 25KB per function vs 600MB+ in previous versions
+- **Ultra-light functions**: 10-17KB per function vs 600MB+ in previous versions
 - **Cost Optimization**: Pay only for actual function size and execution
 - **Fast Cold Starts**: Minimal bundle size reduces initialization time
 - **Scalability**: Each function scales independently
@@ -29,12 +30,12 @@ This project follows a **serverless microservices architecture** where **each us
 
 ## Tech Stack
 
-- **Framework**: Serverless Framework v4 (TypeScript native)
+- **Framework**: Serverless Framework v3 with ts-node (TypeScript support)
 - **Runtime**: Node.js 18
-- **Bundler**: ESBuild (native integration)
+- **Bundler**: ESBuild (via serverless-esbuild plugin)
 - **Deployment**: AWS Lambda + Lambda Layers
 - **Package Manager**: pnpm
-- **Language**: TypeScript with `@serverless/typescript`
+- **Language**: TypeScript with ts-node for configuration files
 
 ## Bundle Optimization
 
@@ -47,7 +48,7 @@ This project implements several optimization strategies:
 ### Function Packaging
 - **Individual packaging**: `individually: true`
 - **ESBuild exclusions**: Dependencies moved to layers
-- **Result**: Each function ~25KB vs ~600MB before optimization
+- **Result**: Each function ~10-17KB vs ~600MB before optimization
 
 ### Build Configuration
 ```typescript
@@ -450,7 +451,7 @@ export const functions = {
 ```
 
 The new function will automatically:
-- ✅ Be bundled separately (~25KB)
+- ✅ Be bundled separately (~10-17KB)
 - ✅ Use shared Lambda layers for dependencies
 - ✅ Have optimized ESBuild configuration
 - ✅ Follow the established patterns
@@ -460,7 +461,7 @@ The new function will automatically:
 ### Bundle Size Comparison
 | Metric | Before Optimization | After Optimization |
 |--------|-------------------|------------------|
-| Function Size | ~600MB+ | ~25KB each |
+| Function Size | ~600MB+ | ~10-17KB each |
 | Deploy Time | 5+ minutes | ~3 minutes |
 | Cold Start | 5-10 seconds | <1 second |
 | Layer Usage | None | 2 optimized layers |
@@ -469,7 +470,7 @@ The new function will automatically:
 1. **Individual Packaging**: `individually: true` 
 2. **Lambda Layers**: Shared dependencies (AWS SDK, mysql2, joi)
 3. **ESBuild Exclusions**: Dependencies moved to layers
-4. **TypeScript Native**: Using Serverless Framework v4 native TypeScript support
+4. **TypeScript Native**: Using Serverless Framework v3 with ts-node for TypeScript support
 5. **Minimal Patterns**: Excluding unnecessary files and folders
 
 ### Troubleshooting Bundle Size Issues
@@ -494,12 +495,12 @@ du -sh .serverless/awsSdk.zip .serverless/mysql2.zip
 
 ## AWS Lambda Configuration
 
-The application uses Serverless Framework v4 with optimized configuration:
+The application uses Serverless Framework v3 with optimized configuration:
 
 - **Main config**: `serverless.ts` - Entry point with TypeScript imports
 - **Modular config**: `infra/serverless/` - Separated concerns (functions, layers, provider, etc.)
 - **Function builder**: `infra/templates/function-builder.ts` - Reusable function patterns
-- **ESBuild integration**: Native bundling with optimization
+- **ESBuild integration**: Plugin-based bundling with optimization via serverless-esbuild
 - **Lambda layers**: Shared dependencies for cost and performance optimization
 
 ### Configuration Files Structure
@@ -534,11 +535,13 @@ infra/
 6. Create a pull request
 
 ### Development Guidelines
-- Keep functions under 25KB (use layers for heavy dependencies)
+- Keep functions under 17KB (use layers for heavy dependencies)
 - Follow TypeScript strict mode
 - Use ESBuild-compatible imports
 - Test locally before deploying
 - Document new environment variables
+- **Do not commit temporary test files** (e.g., `test-handler.ts`, temporary configs)
+- Use `.ts` extensions for all configuration files as per project requirements
 
 ## License
 
