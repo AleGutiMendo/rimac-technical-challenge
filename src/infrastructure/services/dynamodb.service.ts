@@ -1,6 +1,15 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { Appointment, AppointmentStatus } from '../../domain/entities/appointment.entity';
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  QueryCommand,
+  UpdateCommand,
+} from '@aws-sdk/lib-dynamodb';
+import {
+  Appointment,
+  AppointmentStatus,
+} from '../../domain/entities/appointment.entity';
 import { Logger } from '../../shared/utils/logger.util';
 
 export class DynamoDBService {
@@ -15,6 +24,11 @@ export class DynamoDBService {
     this.client = DynamoDBDocumentClient.from(dynamoClient);
     this.tableName = process.env.APPOINTMENTS_TABLE || 'appointments';
     this.logger = new Logger('DynamoDBService');
+
+    if (!process.env.APPOINTMENTS_TABLE) {
+      this.logger.error('APPOINTMENTS_TABLE environment variable is not set');
+      throw new Error('APPOINTMENTS_TABLE environment variable is required');
+    }
   }
 
   async putAppointment(appointment: Appointment): Promise<void> {
@@ -37,11 +51,13 @@ export class DynamoDBService {
 
     try {
       await this.client.send(command);
-      this.logger.info('Appointment saved to DynamoDB', { appointmentId: appointment.id });
+      this.logger.info('Appointment saved to DynamoDB', {
+        appointmentId: appointment.id,
+      });
     } catch (error) {
-      this.logger.error('Error saving appointment to DynamoDB', { 
-        error: error.message, 
-        appointmentId: appointment.id 
+      this.logger.error('Error saving appointment to DynamoDB', {
+        error: error.message,
+        appointmentId: appointment.id,
       });
       throw error;
     }
@@ -61,9 +77,9 @@ export class DynamoDBService {
 
       return this.mapItemToAppointment(result.Item);
     } catch (error) {
-      this.logger.error('Error getting appointment from DynamoDB', { 
-        error: error.message, 
-        appointmentId 
+      this.logger.error('Error getting appointment from DynamoDB', {
+        error: error.message,
+        appointmentId,
       });
       throw error;
     }
@@ -85,21 +101,24 @@ export class DynamoDBService {
         return [];
       }
 
-      return result.Items.map(item => this.mapItemToAppointment(item));
+      return result.Items.map((item) => this.mapItemToAppointment(item));
     } catch (error) {
-      this.logger.error('Error getting appointments by insuredId from DynamoDB', { 
-        error: error.message, 
-        insuredId 
-      });
+      this.logger.error(
+        'Error getting appointments by insuredId from DynamoDB',
+        {
+          error: error.message,
+          insuredId,
+        },
+      );
       throw error;
     }
   }
 
   async updateAppointmentStatus(
-    appointmentId: string, 
-    status: AppointmentStatus, 
-    processedAt?: Date, 
-    errorMessage?: string
+    appointmentId: string,
+    status: AppointmentStatus,
+    processedAt?: Date,
+    errorMessage?: string,
   ): Promise<void> {
     const updateExpression = 'SET #status = :status, updatedAt = :updatedAt';
     const expressionAttributeNames: any = { '#status': 'status' };
@@ -130,14 +149,14 @@ export class DynamoDBService {
 
     try {
       await this.client.send(command);
-      this.logger.info('Appointment status updated in DynamoDB', { 
-        appointmentId, 
-        status 
+      this.logger.info('Appointment status updated in DynamoDB', {
+        appointmentId,
+        status,
       });
     } catch (error) {
-      this.logger.error('Error updating appointment status in DynamoDB', { 
-        error: error.message, 
-        appointmentId 
+      this.logger.error('Error updating appointment status in DynamoDB', {
+        error: error.message,
+        appointmentId,
       });
       throw error;
     }
@@ -153,7 +172,7 @@ export class DynamoDBService {
       item.processedAt ? new Date(item.processedAt) : undefined,
       item.errorMessage,
       new Date(item.createdAt),
-      new Date(item.updatedAt)
+      new Date(item.updatedAt),
     );
   }
 }

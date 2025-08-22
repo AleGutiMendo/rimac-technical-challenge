@@ -1,4 +1,4 @@
-import { createConnection, Connection } from 'mysql2/promise';
+import { Connection, createConnection } from 'mysql2/promise';
 import { RDSAppointmentDto } from '../../application/dto/appointment.dto';
 import { Logger } from '../../shared/utils/logger.util';
 
@@ -7,6 +7,26 @@ export class RDSService {
 
   constructor() {
     this.logger = new Logger('RDSService');
+
+    // Validate required environment variables
+    const requiredEnvVars = [
+      'RDS_HOST',
+      'RDS_USERNAME',
+      'RDS_PASSWORD',
+      'RDS_DATABASE',
+    ];
+    const missingVars = requiredEnvVars.filter(
+      (varName) => !process.env[varName],
+    );
+
+    if (missingVars.length > 0) {
+      this.logger.error('Missing required RDS environment variables', {
+        missingVars,
+      });
+      throw new Error(
+        `Missing required RDS environment variables: ${missingVars.join(', ')}`,
+      );
+    }
   }
 
   private async getConnection(): Promise<Connection> {
@@ -24,7 +44,7 @@ export class RDSService {
 
     try {
       connection = await this.getConnection();
-      
+
       const query = `
         INSERT INTO appointments 
         (appointment_id, insured_id, schedule_id, country_iso, created_at, processed_at)
@@ -43,16 +63,16 @@ export class RDSService {
       ];
 
       await connection.execute(query, values);
-      
-      this.logger.info('Appointment saved to RDS', { 
+
+      this.logger.info('Appointment saved to RDS', {
         appointmentId: appointment.appointment_id,
-        countryISO: appointment.country_iso 
+        countryISO: appointment.country_iso,
       });
     } catch (error) {
-      this.logger.error('Error saving appointment to RDS', { 
+      this.logger.error('Error saving appointment to RDS', {
         error: error.message,
         appointmentId: appointment.appointment_id,
-        countryISO: appointment.country_iso
+        countryISO: appointment.country_iso,
       });
       throw error;
     } finally {
@@ -67,9 +87,9 @@ export class RDSService {
 
     try {
       connection = await this.getConnection();
-      
+
       const tableName = `appointments_${countryISO.toLowerCase()}`;
-      
+
       const createTableQuery = `
         CREATE TABLE IF NOT EXISTS ${tableName} (
           id INT AUTO_INCREMENT PRIMARY KEY,
@@ -86,12 +106,12 @@ export class RDSService {
       `;
 
       await connection.execute(createTableQuery);
-      
+
       this.logger.info(`Table ${tableName} ensured to exist`);
     } catch (error) {
-      this.logger.error('Error creating table in RDS', { 
+      this.logger.error('Error creating table in RDS', {
         error: error.message,
-        countryISO
+        countryISO,
       });
       throw error;
     } finally {

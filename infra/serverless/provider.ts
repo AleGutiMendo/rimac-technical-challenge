@@ -11,6 +11,7 @@ export const provider = {
     PROJECT_PREFIX: '${env:PROJECT_PREFIX, "rimac-challenge"}',
     STAGE: '${self:provider.stage}',
     APPOINTMENTS_TABLE: '${self:service}-appointments',
+    APPOINTMENTS_TOPIC_ARN: { Ref: 'AppointmentsTopic' },
     APPOINTMENTS_EVENT_BUS_NAME: '${self:service}-appointments-events',
     RDS_HOST: '${env:RDS_HOST, "localhost"}',
     RDS_PORT: '${env:RDS_PORT, "3306"}',
