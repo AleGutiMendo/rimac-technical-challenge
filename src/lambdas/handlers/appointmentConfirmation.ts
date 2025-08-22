@@ -1,6 +1,6 @@
-import { SQSEvent, SQSRecord, Context, Handler } from 'aws-lambda';
-import { ProcessAppointmentConfirmationUseCase } from '../../application/use-cases/process-appointment-confirmation.use-case';
+import { Context, Handler, SQSEvent, SQSRecord } from 'aws-lambda';
 import { AppointmentConfirmationEventDto } from '../../application/dto/appointment.dto';
+import { ProcessAppointmentConfirmationUseCase } from '../../application/use-cases/process-appointment-confirmation.use-case';
 import { DynamoDBService } from '../../infrastructure/services/dynamodb.service';
 import { Logger } from '../../shared/utils/logger.util';
 import { ensureBootstrap } from '../shared/bootstrap';
@@ -9,7 +9,7 @@ const logger = new Logger('AppointmentConfirmationHandler');
 
 export const handler: Handler<SQSEvent, void> = async (
   event: SQSEvent,
-  context: Context
+  context: Context,
 ): Promise<void> => {
   // Ensure dependencies are bootstrapped
   await ensureBootstrap();
@@ -34,12 +34,13 @@ export const handler: Handler<SQSEvent, void> = async (
 
 async function processRecord(
   record: SQSRecord,
-  useCase: ProcessAppointmentConfirmationUseCase
+  useCase: ProcessAppointmentConfirmationUseCase,
 ): Promise<void> {
   try {
     // Parse EventBridge event from SQS
     const eventBridgeEvent = JSON.parse(record.body);
-    const confirmationEvent: AppointmentConfirmationEventDto = JSON.parse(eventBridgeEvent.detail);
+    const confirmationEvent: AppointmentConfirmationEventDto =
+      eventBridgeEvent.detail;
 
     logger.info('Processing appointment confirmation from EventBridge', {
       appointmentId: confirmationEvent.appointmentId,
