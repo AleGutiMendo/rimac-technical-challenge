@@ -1,31 +1,38 @@
 import type { AWS } from '@serverless/typescript';
-import { createApiFunction } from '../../infra/templates/function-builder';
 
 export const functions: AWS['functions'] = {
   appointment: {
-    ...createApiFunction(
-      'appointment',
-      'src/lambdas/handlers/appointment.handler',
-    )
-      .withTimeout(30)
-      .withMemorySize(512)
-      .withHttpEvent('post', '/api/appointments')
-      .build(),
-    layers: [{ Ref: 'AwsSdkLambdaLayer' }, { Ref: 'Mysql2LambdaLayer' }],
+    handler: 'src/lambdas/handlers/appointment.handler.ts',
+    timeout: 30,
+    memorySize: 512,
+    layers: [{ Ref: 'AwsSdkLambdaLayer' }],
+    events: [
+      {
+        http: {
+          method: 'post',
+          path: '/api/appointments',
+          cors: true,
+        },
+      },
+    ],
   },
   listAppointments: {
-    ...createApiFunction(
-      'listAppointments',
-      'src/lambdas/handlers/list-appointments.handler',
-    )
-      .withTimeout(30)
-      .withMemorySize(256)
-      .withHttpEvent('get', '/api/appointments/{insuredId}')
-      .build(),
-    layers: [{ Ref: 'AwsSdkLambdaLayer' }, { Ref: 'Mysql2LambdaLayer' }],
+    handler: 'src/lambdas/handlers/list-appointments.handler.ts',
+    timeout: 30,
+    memorySize: 256,
+    layers: [{ Ref: 'AwsSdkLambdaLayer' }],
+    events: [
+      {
+        http: {
+          method: 'get',
+          path: '/api/appointments/{insuredId}',
+          cors: true,
+        },
+      },
+    ],
   },
   appointmentPe: {
-    handler: 'src/lambdas/handlers/appointment-pe.handler',
+    handler: 'src/lambdas/handlers/appointment-pe.handler.ts',
     timeout: 30,
     memorySize: 512,
     layers: [{ Ref: 'AwsSdkLambdaLayer' }, { Ref: 'Mysql2LambdaLayer' }],
@@ -39,10 +46,10 @@ export const functions: AWS['functions'] = {
     ],
   },
   appointmentCl: {
-    handler: 'src/lambdas/handlers/appointment-cl.handler',
+    handler: 'src/lambdas/handlers/appointment-cl.handler.ts',
     timeout: 30,
     memorySize: 512,
-    layers: [{ Ref: 'AwsSdkLambdaLayer' }],
+    layers: [{ Ref: 'AwsSdkLambdaLayer' }, { Ref: 'Mysql2LambdaLayer' }],
     events: [
       {
         sqs: {
@@ -53,7 +60,7 @@ export const functions: AWS['functions'] = {
     ],
   },
   appointmentConfirmation: {
-    handler: 'src/lambdas/handlers/appointment-confirmation.handler',
+    handler: 'src/lambdas/handlers/appointment-confirmation.handler.ts',
     timeout: 30,
     memorySize: 256,
     layers: [{ Ref: 'AwsSdkLambdaLayer' }],

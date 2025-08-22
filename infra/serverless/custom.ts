@@ -1,7 +1,4 @@
-import type { AWS } from '@serverless/typescript';
-
-export const custom: AWS['custom'] = {
-  documentation: {},
+export const custom = {
   esbuild: {
     bundle: true,
     minify: false,
@@ -13,6 +10,8 @@ export const custom: AWS['custom'] = {
     concurrency: 10,
   },
 };
+
+export const plugins = ['serverless-esbuild', 'serverless-aws-documentation'];
 
 export const packageConfig = {
   individually: true,
@@ -28,11 +27,6 @@ export const packageConfig = {
     '!*.md',
     '!*.json',
     '!tsconfig*.json',
-    '!eslint.config.mjs',
-    '!jest.config.js',
-    '!README.md',
-    '!pnpm-lock.yaml',
-    // Exclusión de archivos de entorno y config
     '!.env',
     '!.env.*',
     '!serverless.ts',
@@ -43,5 +37,3 @@ export const packageConfig = {
     '!*.dev',
   ],
 };
-
-export const plugins = ['serverless-aws-documentation'];
