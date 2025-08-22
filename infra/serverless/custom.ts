@@ -1,4 +1,15 @@
 export const custom = {
+  dotenv: {
+    path: '.env.${self:provider.stage}',
+    include: [
+      'RDS_HOST',
+      'RDS_PORT',
+      'RDS_USERNAME',
+      'RDS_PASSWORD',
+      'RDS_DATABASE',
+      'PROJECT_PREFIX',
+    ],
+  },
   esbuild: {
     bundle: true,
     minify: false,
@@ -11,7 +22,11 @@ export const custom = {
   },
 };
 
-export const plugins = ['serverless-esbuild', 'serverless-aws-documentation'];
+export const plugins = [
+  'serverless-dotenv-plugin',
+  'serverless-esbuild',
+  'serverless-aws-documentation',
+];
 
 export const packageConfig = {
   individually: true,

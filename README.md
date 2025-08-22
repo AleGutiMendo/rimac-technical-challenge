@@ -147,7 +147,18 @@ cp .env.example .env
 # Setup AWS Profile
 # Make sure you have configured your AWS profile 'ale-gutimendo-dev'
 # or set AWS_PROFILE environment variable to your preferred profile
+
+# Configure RDS (Optional - for country-specific functions)
+# If you plan to use appointmentPe and appointmentCl functions, 
+# configure RDS variables in .env:
+# RDS_HOST=your-rds-endpoint.amazonaws.com
+# RDS_PORT=3306
+# RDS_DATABASE=appointments
+# RDS_USERNAME=your_username
+# RDS_PASSWORD=your_password
 ```
+
+> **Note**: Functions `appointmentPe` and `appointmentCl` require RDS configuration. If RDS is not configured, these functions will fail with connection errors, but other functions will work normally.
 
 ## Development
 

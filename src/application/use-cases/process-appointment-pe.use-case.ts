@@ -1,28 +1,31 @@
-import { UseCase } from '../interfaces/use-case.interface';
-import { CountryAppointmentSQSEventDto, RDSAppointmentDto, AppointmentConfirmationEventDto } from '../dto/appointment.dto';
-import { RDSService } from '../../infrastructure/services/rds.service';
 import { EventBridgeService } from '../../infrastructure/services/eventbridge.service';
+import { RDSService } from '../../infrastructure/services/rds.service';
 import { Logger } from '../../shared/utils/logger.util';
+import {
+  AppointmentConfirmationEventDto,
+  CountryAppointmentSQSEventDto,
+  RDSAppointmentDto,
+} from '../dto/appointment.dto';
+import { UseCase } from '../interfaces/use-case.interface';
 
-export class ProcessAppointmentPeUseCase implements UseCase<CountryAppointmentSQSEventDto, void> {
+export class ProcessAppointmentPeUseCase
+  implements UseCase<CountryAppointmentSQSEventDto, void>
+{
   private logger: Logger;
 
   constructor(
     private rdsService: RDSService,
-    private eventBridgeService: EventBridgeService
+    private eventBridgeService: EventBridgeService,
   ) {
     this.logger = new Logger('ProcessAppointmentPeUseCase');
   }
 
   async execute(input: CountryAppointmentSQSEventDto): Promise<void> {
     try {
-      this.logger.info('Processing Peru appointment', { 
+      this.logger.info('Processing Peru appointment', {
         appointmentId: input.appointmentId,
-        insuredId: input.insuredId 
+        insuredId: input.insuredId,
       });
-
-      // Ensure table exists for Peru
-      await this.rdsService.createTableIfNotExists('PE');
 
       // Save appointment to RDS
       const rdsAppointment: RDSAppointmentDto = {
@@ -47,15 +50,17 @@ export class ProcessAppointmentPeUseCase implements UseCase<CountryAppointmentSQ
         countryISO: input.countryISO,
       };
 
-      await this.eventBridgeService.publishAppointmentConfirmation(confirmationEvent);
+      await this.eventBridgeService.publishAppointmentConfirmation(
+        confirmationEvent,
+      );
 
-      this.logger.info('Peru appointment processed successfully', { 
-        appointmentId: input.appointmentId 
+      this.logger.info('Peru appointment processed successfully', {
+        appointmentId: input.appointmentId,
       });
     } catch (error) {
-      this.logger.error('Error processing Peru appointment', { 
+      this.logger.error('Error processing Peru appointment', {
         error: error.message,
-        appointmentId: input.appointmentId 
+        appointmentId: input.appointmentId,
       });
 
       // Publish failure event
@@ -68,11 +73,13 @@ export class ProcessAppointmentPeUseCase implements UseCase<CountryAppointmentSQ
       };
 
       try {
-        await this.eventBridgeService.publishAppointmentConfirmation(failureEvent);
+        await this.eventBridgeService.publishAppointmentConfirmation(
+          failureEvent,
+        );
       } catch (eventError) {
-        this.logger.error('Error publishing failure event', { 
+        this.logger.error('Error publishing failure event', {
           error: eventError.message,
-          appointmentId: input.appointmentId 
+          appointmentId: input.appointmentId,
         });
       }
 
