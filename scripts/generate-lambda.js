@@ -6,7 +6,7 @@ const path = require('path');
 function toPascalCase(str) {
   return str
     .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 }
 
@@ -19,9 +19,9 @@ function generateLambda(name, httpMethod = 'post', apiPath) {
   const pascalName = toPascalCase(name);
   const camelName = toCamelCase(name);
   const kebabName = name;
-  
+
   const defaultApiPath = apiPath || `/api/${kebabName}`;
-  
+
   // Generate DTO
   const dtoContent = `export interface ${pascalName}Dto {
   // TODO: Add input properties
@@ -77,11 +77,14 @@ class ${pascalName}Handler extends BaseLambdaHandler<${pascalName}Dto, ${pascalN
   }
 
   protected async parseInput(event: APIGatewayProxyEvent): Promise<${pascalName}Dto> {
-    ${httpMethod.toLowerCase() === 'get' ? `
+    ${
+      httpMethod.toLowerCase() === 'get'
+        ? `
     // Parse from query parameters or path parameters
     return {
       // TODO: Extract from event.queryStringParameters or event.pathParameters
-    };` : `
+    };`
+        : `
     if (!event.body) {
       throw new Error('Request body is required');
     }
@@ -93,7 +96,8 @@ class ${pascalName}Handler extends BaseLambdaHandler<${pascalName}Dto, ${pascalN
       };
     } catch (error) {
       throw new Error('Invalid JSON in request body');
-    }`}
+    }`
+    }
   }
 }
 
@@ -117,7 +121,7 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = asy
   const useCaseDir = path.join(__dirname, '../src/application/use-cases');
   const handlerDir = path.join(__dirname, '../src/lambdas/handlers');
 
-  [dtoDir, useCaseDir, handlerDir].forEach(dir => {
+  [dtoDir, useCaseDir, handlerDir].forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -125,13 +129,16 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = asy
 
   // Write files
   fs.writeFileSync(path.join(dtoDir, `${kebabName}.dto.ts`), dtoContent);
-  fs.writeFileSync(path.join(useCaseDir, `${kebabName}.use-case.ts`), useCaseContent);
-  fs.writeFileSync(path.join(handlerDir, `${kebabName}.handler.ts`), handlerContent);
+  fs.writeFileSync(
+    path.join(useCaseDir, `${kebabName}.use-case.ts`),
+    useCaseContent,
+  );
+  fs.writeFileSync(path.join(handlerDir, `${camelName}.ts`), handlerContent);
 
   // Generate serverless function configuration
   const serverlessFunction = `
 // Add this to your serverless.ts functions section:
-${camelName}: createApiFunction('${camelName}', 'src/lambdas/handlers/${kebabName}.handler')
+${camelName}: createApiFunction('${camelName}', 'src/lambdas/handlers/${camelName}.handler')
   .withTimeout(30)
   .withMemorySize(256)
   .withHttpEvent('${httpMethod.toLowerCase()}', '${defaultApiPath}')
@@ -141,7 +148,7 @@ ${camelName}: createApiFunction('${camelName}', 'src/lambdas/handlers/${kebabNam
   console.log(`📁 Files created:`);
   console.log(`   - src/application/dto/${kebabName}.dto.ts`);
   console.log(`   - src/application/use-cases/${kebabName}.use-case.ts`);
-  console.log(`   - src/lambdas/handlers/${kebabName}.handler.ts`);
+  console.log(`   - src/lambdas/handlers/${camelName}.ts`);
   console.log(`\n🔧 Add this to your serverless.ts:`);
   console.log(serverlessFunction);
   console.log(`\n📝 Don't forget to:`);
@@ -155,8 +162,12 @@ ${camelName}: createApiFunction('${camelName}', 'src/lambdas/handlers/${kebabNam
 // Parse command line arguments
 const args = process.argv.slice(2);
 if (args.length < 1) {
-  console.error('Usage: node scripts/generate-lambda.js <function-name> [http-method] [api-path]');
-  console.error('Example: node scripts/generate-lambda.js create-order post /api/orders');
+  console.error(
+    'Usage: node scripts/generate-lambda.js <function-name> [http-method] [api-path]',
+  );
+  console.error(
+    'Example: node scripts/generate-lambda.js create-order post /api/orders',
+  );
   process.exit(1);
 }
 

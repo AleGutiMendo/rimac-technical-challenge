@@ -355,7 +355,7 @@ After successful deployment, you'll have:
 - **Swagger UI**: `http://rimac-challenge-prod-swagger-docs-prod.s3-website-us-east-1.amazonaws.com`
 - **OpenAPI YAML**: Available at the same domain under `/openapi.yaml`
 
-### Lambda Functions (25KB each)
+### Lambda Functions (10-17KB each)
 - `appointment` - Create appointments
 - `listAppointments` - List appointments by insured ID
 - `appointmentPe` - Process Peru appointments (SQS)
@@ -376,6 +376,8 @@ After successful deployment, you'll have:
 ## Creating New Lambda Functions
 
 Each use case becomes an independent Lambda function. Follow these steps to create a new optimized function:
+
+> **Note**: Handler files use clean names without `.handler` suffix (e.g., `appointment.ts`, `listAppointments.ts`) to avoid Lambda module resolution issues.
 
 ### 1. Create the Use Case
 
@@ -408,7 +410,7 @@ export interface MyOutputDto {
 ### 3. Create Lambda Handler
 
 ```typescript
-// src/lambdas/handlers/my-handler.handler.ts
+// src/lambdas/handlers/myHandler.ts
 import { BaseLambdaHandler } from '../shared/base-lambda.handler';
 import { MyNewUseCase } from '../../application/use-cases/my-new-use-case';
 
@@ -440,7 +442,7 @@ import { createApiFunction } from '../../infra/templates/function-builder';
 export const functions = {
   // ... existing functions
   myNewFunction: {
-    ...createApiFunction('myNewFunction', 'src/lambdas/handlers/my-handler.handler')
+    ...createApiFunction('myNewFunction', 'src/lambdas/handlers/myHandler.handler')
       .withTimeout(30)
       .withMemorySize(256)
       .withHttpEvent('post', '/api/my-resource')

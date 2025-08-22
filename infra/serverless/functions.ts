@@ -2,7 +2,7 @@ import type { AWS } from '@serverless/typescript';
 
 export const functions: AWS['functions'] = {
   appointment: {
-    handler: 'src/lambdas/handlers/appointment.handler.ts',
+    handler: 'src/lambdas/handlers/appointment.handler',
     timeout: 30,
     memorySize: 512,
     layers: [{ Ref: 'AwsSdkLambdaLayer' }],
@@ -17,7 +17,7 @@ export const functions: AWS['functions'] = {
     ],
   },
   listAppointments: {
-    handler: 'src/lambdas/handlers/list-appointments.handler.ts',
+    handler: 'src/lambdas/handlers/listAppointments.handler',
     timeout: 30,
     memorySize: 256,
     layers: [{ Ref: 'AwsSdkLambdaLayer' }],
@@ -32,7 +32,7 @@ export const functions: AWS['functions'] = {
     ],
   },
   appointmentPe: {
-    handler: 'src/lambdas/handlers/appointment-pe.handler.ts',
+    handler: 'src/lambdas/handlers/appointmentPe.handler',
     timeout: 30,
     memorySize: 512,
     layers: [{ Ref: 'AwsSdkLambdaLayer' }, { Ref: 'Mysql2LambdaLayer' }],
@@ -46,7 +46,7 @@ export const functions: AWS['functions'] = {
     ],
   },
   appointmentCl: {
-    handler: 'src/lambdas/handlers/appointment-cl.handler.ts',
+    handler: 'src/lambdas/handlers/appointmentCl.handler',
     timeout: 30,
     memorySize: 512,
     layers: [{ Ref: 'AwsSdkLambdaLayer' }, { Ref: 'Mysql2LambdaLayer' }],
@@ -60,7 +60,7 @@ export const functions: AWS['functions'] = {
     ],
   },
   appointmentConfirmation: {
-    handler: 'src/lambdas/handlers/appointment-confirmation.handler.ts',
+    handler: 'src/lambdas/handlers/appointmentConfirmation.handler',
     timeout: 30,
     memorySize: 256,
     layers: [{ Ref: 'AwsSdkLambdaLayer' }],
